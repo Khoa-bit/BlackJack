@@ -21,7 +21,7 @@ class DeckOfCards:
                 self.deck.append(card)
 
     def __repr__(self):
-        return '<[DeckOfCards] deck: {0} cards>'.format(len(self.deck))
+        return '<[DeckOfCards] deck: {0!r} cards>'.format(len(self.deck))
 
     def shuffle(self):
         random.shuffle(self.deck)
@@ -37,8 +37,8 @@ class Player:
         self.ace = False
 
     def __repr__(self):
-        return '<[Player] name: {0}, turn: {2}, result: {3}, hand: {1}, linked deck: {4}>'\
-            .format(self.name, self.hand, self.turn, self.result, self.linked_deck)
+        return '<[Player] name: {0!r}, turn: {2!r}, result: {3!r},ace: {5!r}, hand: {1!r}, linked deck: {4!r}>'\
+            .format(self.name, self.hand, self.turn, self.result, self.linked_deck, self.ace)
 
     def player_turn(self):
         print('------{0}\'s turn------'.format(self.name))
@@ -110,7 +110,3 @@ for nth in range(1, player_num):
     # Table turn
     while players[nth].turn:
         players[nth].player_turn()
-        pass
-
-
-
