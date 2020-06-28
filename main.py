@@ -34,6 +34,7 @@ class Player:
         self.turn = True
         self.result = 0
         self.linked_deck = None
+        self.ace = False
 
     def __repr__(self):
         return '<[Player] name: {0}, turn: {2}, result: {3}, hand: {1}, linked deck: {4}>'\
@@ -49,13 +50,25 @@ class Player:
 
         if option == '1':
             self.hit()
+            if len(self.hand) == 5 and self.result <= 21:
+                print('==FIVE CARD CHARLIE==')
         elif option == '2':
             self.turn = False
 
     def deal_hand(self, d):
         self.linked_deck = d
         self.hand = self.linked_deck.deck[:2]
+        # self.hand = [ACard('A', 'Club'), ACard('A', 'Space')]
         self.linked_deck.deck = self.linked_deck.deck[2:]
+        card0 = self.hand[0].rank
+        card1 = self.hand[1].rank
+
+        if card0 == 'A' or card1 == 'A':
+            print('Found Ace!!')
+            self.ace = True
+            if card1 in ['10', 'J', 'Q', 'K'] or card0 in ['10', 'J', 'Q', 'K']:
+                print('=={0} gets BlackJack=='.format(self.name))
+                self.turn = False
 
     def hit(self):
         self.hand.append(self.linked_deck.deck[0])
@@ -97,7 +110,6 @@ for nth in range(1, player_num):
     # Table turn
     while players[nth].turn:
         players[nth].player_turn()
-        # players[nth].turn = int(input("{0} End turn: ".format(players[nth].name)))
         pass
 
 
