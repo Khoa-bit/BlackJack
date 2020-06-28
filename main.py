@@ -14,16 +14,19 @@ deck0.shuffle()
 for nth in range(player_num):
     players[nth].deal_hand(deck0)
 
-# Show all hands and the first card of the Dealer
-# clear()
-show_table()
+clear()
 
 # Table Turn
 for nth in range(1, player_num):
     # Player turn
     while players[nth].turn:
         players[nth].player_turn()
-        # clear()
+        clear()
+
+# Dealer Turn
+while players[0].turn:
+    players[0].player_turn()
+    clear()
 
 print('==========Summary==========')
 for nth in range(player_num):

@@ -55,6 +55,7 @@ class Player:
             .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace)
 
     def player_turn(self):
+        show_table()
         # UI
         print('------{0}\'s turn------'.format(self.name))
         print('{0}\'s current Hand:'.format(self.name))
@@ -73,16 +74,17 @@ class Player:
             input('(Any) End turn\n--> ')
         # Option
         elif self.total[-1] <= 21:
-            print('(1) Hit | (2) End turn | (s) Show Table')
+            print('(1) Hit | (2) End turn')
             option = input('--> ').upper()
 
             if option == '1':
                 self.hit()
             elif option == '2':
-                self.summary = self.total[-1]
+                if self.ace and self.total[-2] <= 21:
+                    self.summary = self.total[-2]
+                else:
+                    self.summary = self.total[-1]
                 self.turn = False
-            elif option == 'S':
-                show_table()
         # Bust
         else:
             self.turn = False
@@ -123,6 +125,7 @@ class Player:
 
 
 def show_table():
+    """Show all hands and the first card of the Dealer"""
     print('================Show Table================')
     for nth in range(player_num):
         if nth == 0:
