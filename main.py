@@ -1,3 +1,6 @@
+import random
+
+
 class ACard:
     def __init__(self, r, s):
         self.rank = r
@@ -20,12 +23,17 @@ class DeckOfCards:
     def __repr__(self):
         return '<[DeckOfCards] deck: {0} cards>'.format(len(self.deck))
 
+    def shuffle(self):
+        random.shuffle(self.deck)
+
 
 """Demo Section"""
-card0 = ACard('Three', 'Heart')
-print(card0)
+# card0 = ACard('Three', 'Heart')
+# print(card0)
 
 deck0 = DeckOfCards()
+deck0.shuffle()
 print(deck0)
-for i in range(13):
-    print(deck0.deck[i])
+
+
+
