@@ -33,23 +33,33 @@ class Player:
         self.hand = []
         self.turn = True
         self.result = 0
+        self.linked_deck = None
 
     def __repr__(self):
-        return '<[Player] name: {0}, turn: {2}, hand: {1}>'.format(self.name, self.hand, self.turn)
+        return '<[Player] name: {0}, turn: {2}, result: {3}, hand: {1}, linked deck: {4}>'\
+            .format(self.name, self.hand, self.turn, self.result, self.linked_deck)
 
     def player_turn(self):
         print('------{0}\'s turn------'.format(self.name))
         print('{0}\'s current Hand:'.format(self.name))
         for card in self.hand:
             print('- {0:>2} of {1}'.format(card.rank, card.suit))
+        print('(1) Hit | (2) End turn')
+        option = input('--> ')
+
+        if option == '1':
+            self.hit()
+        elif option == '2':
+            self.turn = False
 
     def deal_hand(self, d):
-        self.hand = d.deck[:2]
-        d.deck = d.deck[2:]
+        self.linked_deck = d
+        self.hand = self.linked_deck.deck[:2]
+        self.linked_deck.deck = self.linked_deck.deck[2:]
 
-    def hit(self, d):
-        self.hand.append(d.deck[0])
-        d.deck = d.deck[1:]
+    def hit(self):
+        self.hand.append(self.linked_deck.deck[0])
+        self.linked_deck.deck = self.linked_deck.deck[1:]
 
     def split(self, d):
         pass
@@ -87,7 +97,7 @@ for nth in range(1, player_num):
     # Table turn
     while players[nth].turn:
         players[nth].player_turn()
-        players[nth].turn = int(input("{0} End turn: ".format(players[nth].name)))
+        # players[nth].turn = int(input("{0} End turn: ".format(players[nth].name)))
         pass
 
 
