@@ -27,13 +27,42 @@ class DeckOfCards:
         random.shuffle(self.deck)
 
 
+class Player:
+    def __init__(self, n='Unknown'):
+        self.name = n
+        self.hand = []
+
+    def __repr__(self):
+        return '<[Player] name: {0}, hand: {1}>'.format(self.name, self.hand)
+
+    def deal_hand(self, d):
+        self.hand = d.deck[:2]
+        d.deck = d.deck[2:]
+
+
 """Demo Section"""
 # card0 = ACard('Three', 'Heart')
 # print(card0)
 
 deck0 = DeckOfCards()
 deck0.shuffle()
-print(deck0)
+
+players = [
+    Player('One'),
+    Player('Two'),
+    Player('Three'),
+    Player('Four'),
+    Player('Five'),
+    Player('Six'),
+    Player('Seven')
+]
+
+player_num = 3
+for nth in range(player_num):
+    players[nth].deal_hand(deck0)
+    print(len(deck0.deck))
+    print(players[nth])
+
 
 
 
