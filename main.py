@@ -42,9 +42,10 @@ class Player:
         self.total = []
         self.linked_deck = None
         self.ace = 0
+        self.summary = ''
 
     def __repr__(self):
-        return '<[Player] name: {0!r}, turn: {2!r}, total: {3!r},ace: {5!r}, hand: {1!r}, linked deck: {4!r}>'\
+        return '<[Player] name: {0!r}, turn: {2!r}, total: {3!r},ace: {5!r}, hand: {1!r}, linked deck: {4!r}>' \
             .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace)
 
     def player_turn(self):
@@ -61,33 +62,39 @@ class Player:
         # Five card Charlie
         if len(self.hand) == 5 and self.total[-1] <= 21:
             self.turn = False
+            self.summary = 'Five card Charlie'
             print('==>FIVE CARD CHARLIE<==')
             input('(Any) End turn\n--> ')
         # Option
         elif self.total[-1] <= 21:
-            print('(1) Hit | (2) End turn')
-            option = input('--> ')
+            print('(1) Hit | (2) End turn | (s) Show Table')
+            option = input('--> ').upper()
 
             if option == '1':
                 self.hit()
             elif option == '2':
+                self.summary = self.total[-1]
                 self.turn = False
+            elif option == 'S':
+                show_table()
         # Bust
         else:
             self.turn = False
+            self.summary = 'Bust'
             print('==>Bust<==')
             input('(Any) End turn\n--> ')
 
     def deal_hand(self, d):
         self.linked_deck = d
-        # self.hand = self.linked_deck.deck[:2]
-        self.hand = [ACard('9', 'Club'), ACard('10', 'Space'), ACard('A', 'Space'), ACard('A', 'Space')]
+        self.hand = self.linked_deck.deck[:2]
+        # self.hand = [ACard('9', 'Club'), ACard('10', 'Space'), ACard('A', 'Space'), ACard('A', 'Space')]
         self.linked_deck.deck = self.linked_deck.deck[2:]
 
         hand_ranks = [card.rank for card in self.hand]
         self.ace = hand_ranks.count('A')
         if self.ace and ['10', 'J', 'Q', 'K'] in hand_ranks:
-            print('=={0} gets BlackJack=='.format(self.name))
+            print('==>{0} gets BLACKJACK<=='.format(self.name))
+            self.summary = 'BlackJack'
             self.turn = False
 
         self.update_result()
@@ -98,6 +105,7 @@ class Player:
         self.update_result()
 
     def split(self, d):
+        """TODO: Implement the last game rule."""
         pass
 
     def update_result(self):
@@ -108,12 +116,29 @@ class Player:
         self.total = [tmp_total - 10 * time for time in range(self.ace + 1)]
 
 
-"""Demo Section"""
-# card0 = ACard('Three', 'Heart')
-# print(card0)
+def show_table():
+    print('================Show Table================')
+    for nth in range(player_num):
+        if nth == 0:
+            print('{0:>10}: '.format(players[nth].name), end='')
+            tmp_str = '{0} of {1}'.format(players[nth].hand[0].rank, players[nth].hand[0].suit)
+            print('{:<15}(***)'.format(tmp_str))
+            continue
 
+        print('{0:>10}: '.format(players[nth].name), end='')
+        for card in players[nth].hand:
+            tmp_str = '{0} of {1}'.format(card.rank, card.suit)
+            print('{:<15}'.format(tmp_str), end='')
+        print()
+    print('==========================================')
+
+
+"""Demo Section"""
 deck0 = DeckOfCards()
 deck0.shuffle()
+
+# card0 = ACard('Three', 'Heart')
+# print(card0)
 
 players = [
     Player('Dealer'),
@@ -125,15 +150,20 @@ players = [
     Player('Six'),
     Player('Seven')
 ]
-
 player_num = 4
+
 for nth in range(player_num):
     players[nth].deal_hand(deck0)
-    # print(len(deck0.deck))
-    # print(players[nth])
+
+# Show all hands and the first card of the Dealer
+show_table()
 
 # Table Turn
 for nth in range(1, player_num):
-    # Table turn
+    # Player turn
     while players[nth].turn:
         players[nth].player_turn()
+
+print('==========Summary==========')
+for nth in range(player_num):
+    print('{0:>13}: {1}'.format(players[nth].name, players[nth].summary))
