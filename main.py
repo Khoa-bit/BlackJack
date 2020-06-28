@@ -31,13 +31,31 @@ class Player:
     def __init__(self, n='Unknown'):
         self.name = n
         self.hand = []
+        self.turn = True
+        self.result = 0
 
     def __repr__(self):
-        return '<[Player] name: {0}, hand: {1}>'.format(self.name, self.hand)
+        return '<[Player] name: {0}, turn: {2}, hand: {1}>'.format(self.name, self.hand, self.turn)
+
+    def player_turn(self):
+        print('------{0}\'s turn------'.format(self.name))
+        print('{0}\'s current Hand:'.format(self.name))
+        for card in self.hand:
+            print('- {0:>2} of {1}'.format(card.rank, card.suit))
 
     def deal_hand(self, d):
         self.hand = d.deck[:2]
         d.deck = d.deck[2:]
+
+    def hit(self, d):
+        self.hand.append(d.deck[0])
+        d.deck = d.deck[1:]
+
+    def split(self, d):
+        pass
+
+    def update_result(self):
+        pass
 
 
 """Demo Section"""
@@ -48,6 +66,7 @@ deck0 = DeckOfCards()
 deck0.shuffle()
 
 players = [
+    Player('Dealer'),
     Player('One'),
     Player('Two'),
     Player('Three'),
@@ -57,12 +76,19 @@ players = [
     Player('Seven')
 ]
 
-player_num = 3
+player_num = 4
 for nth in range(player_num):
     players[nth].deal_hand(deck0)
-    print(len(deck0.deck))
-    print(players[nth])
+    # print(len(deck0.deck))
+    # print(players[nth])
 
+# Table Turn
+for nth in range(1, player_num):
+    # Table turn
+    while players[nth].turn:
+        players[nth].player_turn()
+        players[nth].turn = int(input("{0} End turn: ".format(players[nth].name)))
+        pass
 
 
 
