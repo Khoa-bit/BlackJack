@@ -1,5 +1,12 @@
 import random
 
+# Global Variables
+values = {
+    '2': 2, '3': 3, '4': 4, '5': 5,
+    '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+    'J': 10, 'Q': 10, 'K': 10, 'A': 11
+}
+
 
 class ACard:
     def __init__(self, r, s):
@@ -32,53 +39,73 @@ class Player:
         self.name = n
         self.hand = []
         self.turn = True
-        self.result = 0
+        self.total = []
         self.linked_deck = None
-        self.ace = False
+        self.ace = 0
 
     def __repr__(self):
-        return '<[Player] name: {0!r}, turn: {2!r}, result: {3!r},ace: {5!r}, hand: {1!r}, linked deck: {4!r}>'\
-            .format(self.name, self.hand, self.turn, self.result, self.linked_deck, self.ace)
+        return '<[Player] name: {0!r}, turn: {2!r}, total: {3!r},ace: {5!r}, hand: {1!r}, linked deck: {4!r}>'\
+            .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace)
 
     def player_turn(self):
+        # UI
         print('------{0}\'s turn------'.format(self.name))
         print('{0}\'s current Hand:'.format(self.name))
         for card in self.hand:
             print('- {0:>2} of {1}'.format(card.rank, card.suit))
-        print('(1) Hit | (2) End turn')
-        option = input('--> ')
+        if self.ace and self.total[-2] <= 21:
+            print('Total: {0} or {1}'.format(self.total[-1], self.total[-2]))
+        else:
+            print('Total: {0}'.format(self.total[-1]))
 
-        if option == '1':
-            self.hit()
-            if len(self.hand) == 5 and self.result <= 21:
-                print('==FIVE CARD CHARLIE==')
-        elif option == '2':
+        # Five card Charlie
+        if len(self.hand) == 5 and self.total[-1] <= 21:
             self.turn = False
+            print('==>FIVE CARD CHARLIE<==')
+            input('(Any) End turn\n--> ')
+        # Option
+        elif self.total[-1] <= 21:
+            print('(1) Hit | (2) End turn')
+            option = input('--> ')
+
+            if option == '1':
+                self.hit()
+            elif option == '2':
+                self.turn = False
+        # Bust
+        else:
+            self.turn = False
+            print('==>Bust<==')
+            input('(Any) End turn\n--> ')
 
     def deal_hand(self, d):
         self.linked_deck = d
-        self.hand = self.linked_deck.deck[:2]
-        # self.hand = [ACard('A', 'Club'), ACard('A', 'Space')]
+        # self.hand = self.linked_deck.deck[:2]
+        self.hand = [ACard('9', 'Club'), ACard('10', 'Space'), ACard('A', 'Space'), ACard('A', 'Space')]
         self.linked_deck.deck = self.linked_deck.deck[2:]
-        card0 = self.hand[0].rank
-        card1 = self.hand[1].rank
 
-        if card0 == 'A' or card1 == 'A':
-            print('Found Ace!!')
-            self.ace = True
-            if card1 in ['10', 'J', 'Q', 'K'] or card0 in ['10', 'J', 'Q', 'K']:
-                print('=={0} gets BlackJack=='.format(self.name))
-                self.turn = False
+        hand_ranks = [card.rank for card in self.hand]
+        self.ace = hand_ranks.count('A')
+        if self.ace and ['10', 'J', 'Q', 'K'] in hand_ranks:
+            print('=={0} gets BlackJack=='.format(self.name))
+            self.turn = False
+
+        self.update_result()
 
     def hit(self):
         self.hand.append(self.linked_deck.deck[0])
         self.linked_deck.deck = self.linked_deck.deck[1:]
+        self.update_result()
 
     def split(self, d):
         pass
 
     def update_result(self):
-        pass
+        tmp_total = 0
+        for card in self.hand:
+            tmp_total += values[card.rank]
+
+        self.total = [tmp_total - 10 * time for time in range(self.ace + 1)]
 
 
 """Demo Section"""
