@@ -54,7 +54,7 @@ class Player:
         return '<[Player] name: {0!r}, turn: {2!r}, total: {3!r},ace: {5!r}, hand: {1!r}, linked deck: {4!r}>' \
             .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace)
 
-    def player_turn(self):
+    def player_turn(self, idx):
         show_table()
         # UI
         print('------{0}\'s turn------'.format(self.name))
@@ -85,6 +85,8 @@ class Player:
                 else:
                     self.summary = self.total[-1]
                 self.turn = False
+            elif option == '3':
+                self.split(idx)
         # Bust
         else:
             self.turn = False
@@ -112,9 +114,21 @@ class Player:
         self.linked_deck.deck = self.linked_deck.deck[1:]
         self.update_result()
 
-    def split(self, d):
-        """TODO: Implement the last game rule."""
-        pass
+    def split(self, idx):
+        global player_num
+        global players
+        # Represent a new hand with a player with one copy of the double
+        split_hand = Player(self.name + '(2nd)')
+        split_hand.hand = [self.hand[0]]
+        split_hand.linked_deck = self.linked_deck
+        split_hand.update_result()
+        players.insert(idx + 1, split_hand)
+        player_num += 1
+
+        # Turn player into a split hand
+        self.name = self.name + '(1st)'
+        self.hand.pop()
+        self.update_result()
 
     def update_result(self):
         tmp_total = 0
