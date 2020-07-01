@@ -70,7 +70,7 @@ class Player:
         # Option
         elif self.total[-1] <= 21:
             self.check_double()
-            if self.double and split_times < 3:
+            if self.double and split_times < 3 and len(self.hand) == 2:
                 print('(1) Hit | (2) End turn | (3) Split hand')
             else:
                 print('(1) Hit | (2) End turn')
@@ -84,7 +84,7 @@ class Player:
                 else:
                     self.summary = self.total[-1]
                 self.turn = False
-            elif option == '3' and self.double and split_times < 3:
+            elif option == '3' and self.double and split_times < 3 and len(self.hand) == 2:
                 # TODO: cannot split when a player has more than 2 cards
                 split_times += 1
                 self.split(idx)
