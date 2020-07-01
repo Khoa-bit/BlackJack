@@ -25,6 +25,7 @@ while nth < logic.player_num:
         logic.players[nth].player_turn(nth)
         clear()
     nth += 1
+    logic.split_times = 0
 
 # Dealer Turn
 while logic.players[0].turn:

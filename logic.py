@@ -25,7 +25,8 @@ class ACard:
 
 class DeckOfCards:
     def __init__(self):
-        ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+        # ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+        ranks = ['A', 'A', 'A']
         suits = ['Space', 'Club', 'Diamond', 'Heart']
         self.deck = []
         for suit in suits:
@@ -57,19 +58,9 @@ class Player:
             .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace, self.double)
 
     def player_turn(self, idx):
+        global split_times
         show_table()
-        # UI
-        print('------{0}\'s turn------'.format(self.name))
-        print('{0}\'s current Hand:'.format(self.name))
-        for card in self.hand:
-            print('- {0:>2} of {1}'.format(card.rank, card.suit))
-
-        self.update_ace()
-        self.update_result()
-        if self.ace and self.total[-2] <= 21:
-            print('Total: {0} or {1}'.format(self.total[-1], self.total[-2]))
-        else:
-            print('Total: {0}'.format(self.total[-1]))
+        self.display_info()
 
         # Five card Charlie
         if len(self.hand) == 5 and self.total[-1] <= 21:
@@ -79,7 +70,8 @@ class Player:
             input('(Any) End turn\n--> ')
         # Option
         elif self.total[-1] <= 21:
-            if self.double:
+            self.check_double()
+            if self.double and split_times < 3:
                 print('(1) Hit | (2) End turn | (3) Split hand')
             else:
                 print('(1) Hit | (2) End turn')
@@ -93,7 +85,9 @@ class Player:
                 else:
                     self.summary = self.total[-1]
                 self.turn = False
-            elif option == '3' and self.double:
+            elif option == '3' and self.double and split_times < 3:
+                # TODO: cannot split when a player has more than 2 cards
+                split_times += 1
                 self.split(idx)
         # Bust
         else:
@@ -102,10 +96,26 @@ class Player:
             print('==>Bust<==')
             input('(Any) End turn\n--> ')
 
+    def display_info(self):
+        global split_times
+        # UI
+        print('------{0}\'s turn------'.format(self.name))
+        print(split_times)
+        print('{0}\'s current Hand:'.format(self.name))
+        for card in self.hand:
+            print('- {0:>2} of {1}'.format(card.rank, card.suit))
+        # Update and display the total
+        self.update_ace()
+        self.update_result()
+        if self.ace and self.total[-2] <= 21:
+            print('Total: {0} or {1}'.format(self.total[-1], self.total[-2]))
+        else:
+            print('Total: {0}'.format(self.total[-1]))
+
     def deal_hand(self, d):
         self.linked_deck = d
         # self.hand = self.linked_deck.deck[:2]
-        self.hand = [ACard('A', 'Space'), ACard('J', 'Club')]
+        self.hand = [ACard('A', 'Space'), ACard('A', 'Club')]
         self.linked_deck.deck = self.linked_deck.deck[2:]
 
         hand_ranks = [card.rank for card in self.hand]
@@ -119,9 +129,7 @@ class Player:
                     self.summary = 'BlackJack'
                     self.turn = False
 
-        # Check for double cards
-        if hand_ranks[0] == hand_ranks[1]:
-            self.double = True
+        self.check_double()
 
     def hit(self):
         self.double = False
@@ -131,15 +139,22 @@ class Player:
     def split(self, idx):
         global player_num
         global players
+        global split_times
+        self.double = False
         # Represent a new hand with a player with one copy of the double
-        split_hand = Player(self.name + '(2nd)')
+        if split_times == 1:
+            split_hand = Player(self.name + '()')
+        else:
+            split_hand = Player(self.name)
         split_hand.hand = [self.hand[0]]
         split_hand.linked_deck = self.linked_deck
+        split_hand.split_times = split_times
         players.insert(idx + 1, split_hand)
         player_num += 1
 
         # Turn player into a split hand
-        self.name = self.name + '(1st)'
+        if split_times == 1:
+            self.name = self.name + '()'
         self.hand.pop()
 
     def update_result(self):
@@ -152,6 +167,11 @@ class Player:
     def update_ace(self):
         hand_ranks = [card.rank for card in self.hand]
         self.ace = hand_ranks.count('A')
+
+    def check_double(self):
+        if len(self.hand) > 1:
+            if self.hand[0].rank == self.hand[1].rank:
+                self.double = True
 
 
 def show_table():
@@ -181,6 +201,8 @@ class Dealer(Player):
 player_num = 0
 while player_num < 2 or player_num > 8:
     player_num = int(input('Enter number of players (Max = 7): ')) + 1
+
+split_times = 0
 
 players = [
     Player('Dealer'),
