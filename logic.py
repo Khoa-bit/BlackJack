@@ -25,8 +25,8 @@ class ACard:
 
 class DeckOfCards:
     def __init__(self):
-        # ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-        ranks = ['A', 'A', 'A']
+        ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+        # ranks = ['A', 'A', 'A']
         suits = ['Space', 'Club', 'Diamond', 'Heart']
         self.deck = []
         for suit in suits:
@@ -57,10 +57,12 @@ class Player:
             .format(self.name, split_times)
 
     def player_turn(self, idx):
-        global split_times
         show_table()
         self.display_info()
+        self.turn_logic(idx)
 
+    def turn_logic(self, idx):
+        global split_times
         # Five card Charlie
         if len(self.hand) == 5 and self.total[-1] <= 21:
             self.turn = False
@@ -85,7 +87,6 @@ class Player:
                     self.summary = self.total[-1]
                 self.turn = False
             elif option == '3' and self.double and split_times < 3 and len(self.hand) == 2:
-                # TODO: cannot split when a player has more than 2 cards
                 split_times += 1
                 self.split(idx)
         # Bust
@@ -96,10 +97,8 @@ class Player:
             input('(Any) End turn\n--> ')
 
     def display_info(self):
-        global split_times
         # UI
         print('------{0}\'s turn------'.format(self.name))
-        print(split_times)
         print('{0}\'s current Hand:'.format(self.name))
         for card in self.hand:
             print('- {0:>2} of {1}'.format(card.rank, card.suit))
@@ -113,20 +112,21 @@ class Player:
 
     def deal_hand(self, d):
         self.linked_deck = d
-        # self.hand = self.linked_deck.deck[:2]
-        self.hand = [ACard('A', 'Space'), ACard('A', 'Club')]
+        self.hand = self.linked_deck.deck[:2]
+        # self.hand = [ACard('A', 'Space'), ACard('J', 'Club')]
         self.linked_deck.deck = self.linked_deck.deck[2:]
 
         hand_ranks = [card.rank for card in self.hand]
         # Check and count Ace
         self.ace = hand_ranks.count('A')
-        if self.ace and self.name != 'Dealer':
+        if self.ace:
             for rank in ['10', 'J', 'Q', 'K']:
                 if rank in hand_ranks:
                     # TODO: Dealers should reveal their cards lasts despite BlackJack
-                    print('==>{0} gets BLACKJACK<=='.format(self.name))
+                    if self.name != 'Dealer':
+                        print('==>{0} gets BLACKJACK<=='.format(self.name))
+                        self.turn = False
                     self.summary = 'BlackJack'
-                    self.turn = False
 
         self.check_double()
 
@@ -172,6 +172,26 @@ class Player:
                 self.double = True
 
 
+class Dealer(Player):
+    def __init__(self):
+        super(Dealer, self).__init__('Dealer')
+
+    def dealer_turn(self, idx):
+        show_table()
+        self.display_info()
+        if self.dealer_black_jack():
+            return
+        self.turn_logic(idx)
+
+    def dealer_black_jack(self):
+        # BlackJacK
+        if self.summary == 'BlackJack':
+            self.turn = False
+            print('==>Black Jack<==')
+            input('(Any) End turn\n--> ')
+            return 1
+
+
 def show_table():
     """Show all hands and the first card of the Dealer"""
     print('================Show Table================')
@@ -190,11 +210,6 @@ def show_table():
     print('==========================================')
 
 
-class Dealer(Player):
-    def __init__(self):
-        super(Dealer, self).__init__('Dealer')
-
-
 # Global variables
 player_num = 0
 while player_num < 2 or player_num > 8:
@@ -203,7 +218,7 @@ while player_num < 2 or player_num > 8:
 split_times = 1
 
 players = [
-    Player('Dealer'),
+    Dealer(),
     Player('One'),
     Player('Two'),
     Player('Three'),

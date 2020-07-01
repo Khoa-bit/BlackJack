@@ -30,7 +30,7 @@ while nth < logic.player_num:
 
 # Dealer Turn
 while logic.players[0].turn:
-    logic.players[0].player_turn(0)
+    logic.players[0].dealer_turn(0)
     clear()
 
 print('==========Summary==========')
