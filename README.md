@@ -8,6 +8,7 @@
 
 ###### Quick demo:
 ![Alt Text](https://media.giphy.com/media/PnCHTtABhMxFkP2y6U/giphy.gif)
+
 This demo didn't cover:
 - BlackJack 
 - Split rule
