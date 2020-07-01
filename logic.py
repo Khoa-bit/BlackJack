@@ -53,9 +53,8 @@ class Player:
         self.summary = ''
 
     def __repr__(self):
-        return '<[Player] name: {0!r}, turn: {2!r}, total: {3!r}, ace: {5!r}, double:{6!r},' \
-               ' hand: {1!r}, linked deck: {4!r}>' \
-            .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace, self.double)
+        return '<[Player] name: {0!r}, {1!r}>' \
+            .format(self.name, split_times)
 
     def player_turn(self, idx):
         global split_times
@@ -143,18 +142,17 @@ class Player:
         self.double = False
         # Represent a new hand with a player with one copy of the double
         if split_times == 1:
-            split_hand = Player(self.name + '()')
+            split_hand = Player(self.name + '(split)')
         else:
             split_hand = Player(self.name)
         split_hand.hand = [self.hand[0]]
         split_hand.linked_deck = self.linked_deck
-        split_hand.split_times = split_times
         players.insert(idx + 1, split_hand)
         player_num += 1
 
         # Turn player into a split hand
         if split_times == 1:
-            self.name = self.name + '()'
+            self.name = self.name + '(split)'
         self.hand.pop()
 
     def update_result(self):
@@ -202,7 +200,7 @@ player_num = 0
 while player_num < 2 or player_num > 8:
     player_num = int(input('Enter number of players (Max = 7): ')) + 1
 
-split_times = 0
+split_times = 1
 
 players = [
     Player('Dealer'),

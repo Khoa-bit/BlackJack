@@ -20,12 +20,13 @@ clear()
 # Table Turn
 nth = 1
 while nth < logic.player_num:
+    if len(logic.players[nth].hand) == 2:
+        logic.split_times = 0
     # Player turn
     while logic.players[nth].turn:
         logic.players[nth].player_turn(nth)
         clear()
     nth += 1
-    logic.split_times = 0
 
 # Dealer Turn
 while logic.players[0].turn:
