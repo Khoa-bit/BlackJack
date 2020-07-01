@@ -9,3 +9,4 @@ To try out 'BlackJack':
 - Improve OOP knowledge
 - Override `__repr__` to debug
 - String format
+- Do not import variables `from A import x1` but practice `A.x1` instead.

@@ -48,11 +48,13 @@ class Player:
         self.total = []
         self.linked_deck = None
         self.ace = 0
+        self.double = False
         self.summary = ''
 
     def __repr__(self):
-        return '<[Player] name: {0!r}, turn: {2!r}, total: {3!r},ace: {5!r}, hand: {1!r}, linked deck: {4!r}>' \
-            .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace)
+        return '<[Player] name: {0!r}, turn: {2!r}, total: {3!r}, ace: {5!r}, double:{6!r},' \
+               ' hand: {1!r}, linked deck: {4!r}>' \
+            .format(self.name, self.hand, self.turn, self.total, self.linked_deck, self.ace, self.double)
 
     def player_turn(self, idx):
         show_table()
@@ -61,6 +63,9 @@ class Player:
         print('{0}\'s current Hand:'.format(self.name))
         for card in self.hand:
             print('- {0:>2} of {1}'.format(card.rank, card.suit))
+
+        self.update_ace()
+        self.update_result()
         if self.ace and self.total[-2] <= 21:
             print('Total: {0} or {1}'.format(self.total[-1], self.total[-2]))
         else:
@@ -74,7 +79,10 @@ class Player:
             input('(Any) End turn\n--> ')
         # Option
         elif self.total[-1] <= 21:
-            print('(1) Hit | (2) End turn')
+            if self.double:
+                print('(1) Hit | (2) End turn | (3) Split hand')
+            else:
+                print('(1) Hit | (2) End turn')
             option = input('--> ').upper()
 
             if option == '1':
@@ -85,7 +93,7 @@ class Player:
                 else:
                     self.summary = self.total[-1]
                 self.turn = False
-            elif option == '3':
+            elif option == '3' and self.double:
                 self.split(idx)
         # Bust
         else:
@@ -96,23 +104,29 @@ class Player:
 
     def deal_hand(self, d):
         self.linked_deck = d
-        self.hand = self.linked_deck.deck[:2]
-        # self.hand = [ACard('9', 'Club'), ACard('10', 'Space'), ACard('A', 'Space'), ACard('A', 'Space')]
+        # self.hand = self.linked_deck.deck[:2]
+        self.hand = [ACard('A', 'Space'), ACard('J', 'Club')]
         self.linked_deck.deck = self.linked_deck.deck[2:]
 
         hand_ranks = [card.rank for card in self.hand]
+        # Check and count Ace
         self.ace = hand_ranks.count('A')
-        if self.ace and ['10', 'J', 'Q', 'K'] in hand_ranks:
-            print('==>{0} gets BLACKJACK<=='.format(self.name))
-            self.summary = 'BlackJack'
-            self.turn = False
+        if self.ace and self.name != 'Dealer':
+            for rank in ['10', 'J', 'Q', 'K']:
+                if rank in hand_ranks:
+                    # TODO: Dealers should reveal their cards lasts despite BlackJack
+                    print('==>{0} gets BLACKJACK<=='.format(self.name))
+                    self.summary = 'BlackJack'
+                    self.turn = False
 
-        self.update_result()
+        # Check for double cards
+        if hand_ranks[0] == hand_ranks[1]:
+            self.double = True
 
     def hit(self):
+        self.double = False
         self.hand.append(self.linked_deck.deck[0])
         self.linked_deck.deck = self.linked_deck.deck[1:]
-        self.update_result()
 
     def split(self, idx):
         global player_num
@@ -121,14 +135,12 @@ class Player:
         split_hand = Player(self.name + '(2nd)')
         split_hand.hand = [self.hand[0]]
         split_hand.linked_deck = self.linked_deck
-        split_hand.update_result()
         players.insert(idx + 1, split_hand)
         player_num += 1
 
         # Turn player into a split hand
         self.name = self.name + '(1st)'
         self.hand.pop()
-        self.update_result()
 
     def update_result(self):
         tmp_total = 0
@@ -136,6 +148,10 @@ class Player:
             tmp_total += values[card.rank]
 
         self.total = [tmp_total - 10 * time for time in range(self.ace + 1)]
+
+    def update_ace(self):
+        hand_ranks = [card.rank for card in self.hand]
+        self.ace = hand_ranks.count('A')
 
 
 def show_table():
@@ -154,6 +170,11 @@ def show_table():
             print('{:<15}'.format(tmp_str), end='')
         print()
     print('==========================================')
+
+
+class Dealer(Player):
+    def __init__(self):
+        super(Dealer, self).__init__('Dealer')
 
 
 # Global variables
