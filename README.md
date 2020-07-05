@@ -7,7 +7,7 @@
 2) **If you are on Mac or Linux**, you just need to run main.py.
 
 ###### Quick demo:
-![Alt Text](https://media.giphy.com/media/PnCHTtABhMxFkP2y6U/giphy.gif)
+![Alt Text](https://raw.githubusercontent.com/Khoa-bit/BlackJack/Demo.gif)
 
 This demo didn't cover:
 - BlackJack 
